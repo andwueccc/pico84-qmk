@@ -1,6 +1,12 @@
 // Default keymap for the Pico84 (hand-wired 75%, 84 keys, Raspberry Pi Pico)
 #include QMK_KEYBOARD_H
 
+// Light the Pico's onboard LED as soon as the firmware starts, to show it is running
+void keyboard_pre_init_user(void) {
+    gpio_set_pin_output(GP25);
+    gpio_write_pin_high(GP25);
+}
+
 enum layers {
     _BASE,
     _FN,

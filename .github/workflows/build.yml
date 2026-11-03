@@ -1,0 +1,33 @@
+name: Build firmware
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli
+    env:
+      QMK_HOME: /qmk_firmware
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch QMK firmware
+        run: |
+          git config --global --add safe.directory '*'
+          git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/qmk/qmk_firmware.git /qmk_firmware
+
+      - name: Add keyboard to QMK
+        run: cp -r keyboards/pico84 /qmk_firmware/keyboards/
+
+      - name: Compile
+        working-directory: /qmk_firmware
+        run: |
+          qmk compile -kb pico84 -km default
+          cp /qmk_firmware/*.uf2 "$GITHUB_WORKSPACE/"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pico84-firmware
+          path: "*.uf2"
